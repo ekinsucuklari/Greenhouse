@@ -58,19 +58,19 @@ public class GreenhouseDashboard : MonoBehaviour
         if (EnvironmentPhysics.Instance != null)
         {
             if (insideTemperatureText != null)
-                insideTemperatureText.text = $"{EnvironmentPhysics.Instance.InsideTemp:F1} °C";
+                insideTemperatureText.text = $"{GreenhouseManager.Instance.airState.temperature:F1} °C";
             if (insideHumidityText != null)
-                insideHumidityText.text = $"{EnvironmentPhysics.Instance.InsideHumidity:F0} %";
+                insideHumidityText.text = $"{GreenhouseManager.Instance.airState.humidity:F0} %";
         }
 
-        if (SoilModel.Instance != null)
+        if (GreenhouseManager.Instance != null)
         {
             if (soilMoistureText != null)
-                soilMoistureText.text = $"{SoilModel.Instance.SoilMoisture:F1} %";
+                soilMoistureText.text = $"{GreenhouseManager.Instance.soilState.moisture:F1} %";
             if (ecText != null)
-                ecText.text = $"{SoilModel.Instance.EC:F2} mS/cm";
+                ecText.text = $"{GreenhouseManager.Instance.soilState.ec:F2} mS/cm";
             if (phText != null)
-                phText.text = SoilModel.Instance.PH.ToString("F1");
+                phText.text = GreenhouseManager.Instance.soilState.ph.ToString("F1");
         }
     }
 }
