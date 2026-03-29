@@ -10,19 +10,19 @@ public class GreenhouseManager : MonoBehaviour
     [HideInInspector] public PlantState plantState = new PlantState();
     [HideInInspector] public OutdoorState outdoorState = new OutdoorState();
 
-    // === REFERANSLAR (Inspector'dan baðlanacak) ===
-    [Header("Simülasyon Bileþenleri")]
+    // === REFERANSLAR (Inspector'dan baÄŸlanacak) ===
+    [Header("SimÃ¼lasyon BileÅŸenleri")]
     public SimulationClock simClock;
     public EnvironmentPhysics envPhysics;
     public SoilModel soilModel;
 
-    // Kiþi 2 ekleyecek
-    // public RuleBasedController controller;
+    [Header("Kontrol Sistemleri")]
+    public RuleBasedController controller;
 
-    // Kiþi 3 ekleyecek
+    // KiÅŸi 3 ekleyecek
     // public DashboardManager dashboard;
 
-    // === AKTÜATÖR DURUMLARI (Kiþi 2 yazar, Kiþi 3 okur) ===
+    // === AKTÃœATÃ–R DURUMLARI (KiÅŸi 2 yazar, KiÅŸi 3 okur) ===
     [HideInInspector] public bool fanActive;
     [HideInInspector] public bool heaterActive;
     [HideInInspector] public bool irrigationActive;
@@ -43,22 +43,22 @@ public class GreenhouseManager : MonoBehaviour
 
         float dt = Time.fixedDeltaTime * simClock.timeScale;
 
-        // 1. Dýþ ortamý güncelle (Kiþi 1)
+        // 1. DÄ±ÅŸ ortamÄ± gÃ¼ncelle (KiÅŸi 1)
         if (envPhysics != null)
         {
             envPhysics.UpdateOutdoor(outdoorState, simClock);
             envPhysics.UpdateAir(airState, outdoorState, this, dt);
         }
 
-        // 2. Topraðý güncelle (Kiþi 1)
+        // 2. TopraÄŸÄ± gÃ¼ncelle (KiÅŸi 1)
         if (soilModel != null)
             soilModel.UpdateSoil(soilState, airState, this, dt);
 
-        // 3. Kontrol kararý ver — Kiþi 2 buraya ekleyecek
-        // if (controller != null)
-        //     controller.Evaluate(airState, soilState, plantState, this);
+        // 3. Kontrol kararÄ± ver (KiÅŸi 2)
+        if (controller != null)
+            controller.Evaluate(airState, soilState, plantState, this);
 
-        // 4. UI güncelle — Kiþi 3 buraya ekleyecek
+        // 4. UI gÃ¼ncelle â€” KiÅŸi 3 buraya ekleyecek
         // if (dashboard != null)
         //     dashboard.Refresh(airState, soilState, plantState, this);
     }
