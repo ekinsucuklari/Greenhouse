@@ -18,7 +18,7 @@ public class GreenhouseDashboard : MonoBehaviour
     public TMP_Text outsideTemperatureText;
     public TMP_Text outsideHumidityText;
 
-    [Header("Sera içi (GreenhouseManager.airState)")]
+    [Header("Sera içi (EnvironmentPhysics)")]
     public TMP_Text insideTemperatureText;
     public TMP_Text insideHumidityText;
 
@@ -55,13 +55,16 @@ public class GreenhouseDashboard : MonoBehaviour
                 solarRadiationText.text = $"{WeatherSystem.Instance.SolarRadiation:F0} W/m²";
         }
 
-        if (GreenhouseManager.Instance != null)
+        if (EnvironmentPhysics.Instance != null)
         {
             if (insideTemperatureText != null)
                 insideTemperatureText.text = $"{GreenhouseManager.Instance.airState.temperature:F1} °C";
             if (insideHumidityText != null)
                 insideHumidityText.text = $"{GreenhouseManager.Instance.airState.humidity:F0} %";
+        }
 
+        if (GreenhouseManager.Instance != null)
+        {
             if (soilMoistureText != null)
                 soilMoistureText.text = $"{GreenhouseManager.Instance.soilState.moisture:F1} %";
             if (ecText != null)

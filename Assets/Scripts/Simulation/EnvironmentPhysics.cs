@@ -4,30 +4,20 @@ public class EnvironmentPhysics : MonoBehaviour
 {
     public static EnvironmentPhysics Instance { get; private set; }
 
-    [Header("Sera fizigi")]
-    [Tooltip("Zemin alani m2; gunes kazanci ile carpilir.")]
+    [Header("Sera Fiziksel Özellikleri")]
     public float floorArea = 100f;
-    [Tooltip("Ortu + govde ile disa net isi iletimi W/K.")]
-    public float wallConductance = 550f;
-    [Tooltip("Hava + yapi esdeger isi kapasitesi J/K.")]
+    public float wallConductance = 50f;
     public float thermalCapacity = 50000f;
-    [Tooltip("Fan acikken ek havalandirma W/K.")]
     public float ventilationRate = 200f;
-    [Tooltip("Fan kapaliyken sizinti / minimal hava degisimi W/K.")]
-    public float passiveAirExchange = 120f;
-    [Tooltip("Gunes -> ic hava net oran (cam yansima, golge, bitki).")]
-    [Range(0.02f, 0.2f)]
-    public float solarGainFactor = 0.06f;
     public float heaterPower = 3000f;
-    [Tooltip("Ogle tepe gunes isinimi W/m2.")]
     public float maxSolarPower = 800f;
 
-    [Header("Dis ortam (Inspector)")]
+    [Header("Dýþ Ortam (Inspector'dan izle)")]
     [SerializeField] private float outsideTemp;
     [SerializeField] private float solarRadiation;
     [SerializeField] private float outsideHumidity;
 
-    [Header("Sera ici (Inspector)")]
+    [Header("Sera Ýçi (Inspector'dan izle)")]
     [SerializeField] private float insideTemp;
     [SerializeField] private float insideHumidity;
 
@@ -43,20 +33,20 @@ public class EnvironmentPhysics : MonoBehaviour
     {
         float hour = clock.HourOfDay;
 
-        // Gï¿½neï¿½: sabah 6'da doï¿½ar, ï¿½ï¿½len 12'de tepe, akï¿½am 18'de batar
+        // Güneþ: sabah 6'da doðar, öðlen 12'de tepe, akþam 18'de batar
         float solarAngle = Mathf.Max(0,
             Mathf.Sin((hour - 6f) / 12f * Mathf.PI));
         outdoor.solarRadiation = maxSolarPower * solarAngle;
 
-        // Dï¿½ï¿½ sï¿½caklï¿½k: gece 12ï¿½C, ï¿½ï¿½len 32ï¿½C
+        // Dýþ sýcaklýk: gece 12°C, öðlen 32°C
         outdoor.outsideTemp = 22f +
             10f * Mathf.Sin((hour - 6f) / 24f * 2f * Mathf.PI);
 
-        // Dï¿½ï¿½ nem: gece %70, gï¿½ndï¿½z %45
+        // Dýþ nem: gece %70, gündüz %45
         outdoor.outsideHumidity = 57.5f -
             12.5f * Mathf.Sin((hour - 6f) / 24f * 2f * Mathf.PI);
 
-        // Inspector'da gï¿½rmek iï¿½in
+        // Inspector'da görmek için
         outsideTemp = outdoor.outsideTemp;
         solarRadiation = outdoor.solarRadiation;
         outsideHumidity = outdoor.outsideHumidity;
@@ -65,28 +55,29 @@ public class EnvironmentPhysics : MonoBehaviour
     public void UpdateAir(AirState air, OutdoorState outdoor,
         GreenhouseManager gm, float dt)
     {
-        float solarHeat = outdoor.solarRadiation * floorArea * solarGainFactor;
+        // Isý kazancý
+        float solarHeat = outdoor.solarRadiation * floorArea * 0.6f;
         float heaterHeat = gm.heaterActive ? heaterPower : 0f;
 
+        // Isý kaybý
         float tempDiff = air.temperature - outdoor.outsideTemp;
-        float ventLoss = gm.fanActive
-            ? ventilationRate * tempDiff
-            : passiveAirExchange * tempDiff;
+        float ventLoss = gm.fanActive ? ventilationRate * tempDiff : 0f;
         float wallLoss = wallConductance * tempDiff;
 
+        // Sýcaklýk güncelle
         float dT = (solarHeat + heaterHeat - ventLoss - wallLoss)
             / thermalCapacity;
         air.temperature += dT * dt;
-        air.temperature = Mathf.Clamp(air.temperature, -5f, 48f);
+        air.temperature = Mathf.Clamp(air.temperature, -10f, 60f);
 
+        // Nem güncelle
         float humidityGain = gm.misterActive ? 5f : 0f;
-        float humidityExchange = gm.fanActive ? 0.1f : 0.025f;
-        float humidityLoss =
-            (air.humidity - outdoor.outsideHumidity) * humidityExchange;
+        float humidityLoss = gm.fanActive ?
+            (air.humidity - outdoor.outsideHumidity) * 0.1f : 0f;
         air.humidity += (humidityGain - humidityLoss) * dt;
         air.humidity = Mathf.Clamp(air.humidity, 10f, 100f);
 
-        // Iï¿½ï¿½k
+        // Iþýk
         float naturalLight = outdoor.solarRadiation * 100f;
         float growLight = gm.growLightActive ? 25000f : 0f;
         air.lightLux = naturalLight + growLight;
@@ -95,7 +86,7 @@ public class EnvironmentPhysics : MonoBehaviour
         air.co2 = gm.fanActive ? 400f :
             Mathf.Lerp(air.co2, 1000f, 0.001f * dt);
 
-        // Inspector'da gï¿½rmek iï¿½in
+        // Inspector'da görmek için
         insideTemp = air.temperature;
         insideHumidity = air.humidity;
     }
