@@ -829,6 +829,7 @@ GameObject:
   - component: {fileID: 676438637}
   - component: {fileID: 676438638}
   - component: {fileID: 676438639}
+  - component: {fileID: 676438640}
   m_Layer: 0
   m_Name: SimulationManager
   m_TagString: Untagged
@@ -903,14 +904,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnvironmentPhysics
   floorArea: 100
-  wallConductance: 5
+  wallConductance: 550
   thermalCapacity: 50000
+<<<<<<< Updated upstream
   ventilationRate: 0.1
   heaterPower: 3000
   maxSolarPower: 800
   outsideTemp: 0
   solarRadiation: 0
   outsideHumidity: 0
+=======
+  ventilationRate: 200
+  passiveAirExchange: 120
+  solarGainFactor: 0.06
+  heaterPower: 3000
+  maxSolarPower: 800
+>>>>>>> Stashed changes
   insideTemp: 22
   insideHumidity: 60
 --- !u!114 &676438639
@@ -931,6 +940,25 @@ MonoBehaviour:
   soilMoisture: 60
   ec: 2
   ph: 6.5
+<<<<<<< Updated upstream
+=======
+  plantUptakeRate: 0.01
+--- !u!114 &676438640
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 676438634}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 730e78ecad1df3d4d9ecf8cf94cf0a84, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GreenhouseManager
+  simClock: {fileID: 676438635}
+  envPhysics: {fileID: 676438638}
+  soilModel: {fileID: 676438639}
+>>>>>>> Stashed changes
 --- !u!1 &791402878
 GameObject:
   m_ObjectHideFlags: 0
@@ -2025,7 +2053,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Hour Of Day:'
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
