@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Greenhouse 2D Dashboard</title>
+  <link rel="stylesheet" href="./style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Greenhouse 2D Dashboard</h1>
+    <div class="api-row">
+      <label for="apiBase">API Base:</label>
+      <input id="apiBase" type="text" value="http://127.0.0.1:8000" />
+      <button id="saveApiBaseBtn">Save</button>
+      <span id="apiStatus">-</span>
+    </div>
+    <div class="api-row">
+      <label for="regionName">Region:</label>
+      <select id="regionName">
+        <option value="Antalya_TR">Antalya (TR)</option>
+        <option value="Mersin_TR">Mersin (TR)</option>
+        <option value="Izmir_TR">Izmir (TR)</option>
+        <option value="Konya_TR">Konya (TR)</option>
+      </select>
+      <label for="regionTimezone">Timezone:</label>
+      <input id="regionTimezone" type="text" value="Europe/Istanbul" />
+      <button id="saveRegionBtn">Apply Region</button>
+      <span id="regionStatus">-</span>
+    </div>
+    <div class="clock-row">
+      <span id="realClock">Real: --</span>
+      <span id="simClock">Sim: --</span>
+      <span id="lastTelemetryAt">Last telemetry: --</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="panel">
+      <h2>Live Metrics</h2>
+      <div id="liveMetricsGrid" class="grid"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Actuator Controls</h2>
+      <div id="actuatorControls" class="switch-grid"></div>
+      <p id="actuatorStatus">-</p>
+    </section>
+
+    <section class="panel">
+      <h2>History (Last 60 minutes)</h2>
+      <canvas id="historyChart"></canvas>
+    </section>
+
+    <section class="panel">
+      <h2>Crop Profile</h2>
+      <form id="cropProfileForm">
+        <div class="form-grid">
+          <label>Crop Name <input name="crop_name" type="text" /></label>
+          <label>Temp Min <input name="temp_min" type="number" step="0.1" /></label>
+          <label>Temp Max <input name="temp_max" type="number" step="0.1" /></label>
+          <label>Humidity Min <input name="humidity_min" type="number" step="0.1" /></label>
+          <label>Humidity Max <input name="humidity_max" type="number" step="0.1" /></label>
+          <label>Soil Moisture Min <input name="soil_moisture_min" type="number" step="0.1" /></label>
+          <label>Soil Moisture Max <input name="soil_moisture_max" type="number" step="0.1" /></label>
+          <label>Min Light Lux <input name="min_light_lux" type="number" step="1" /></label>
+          <label>Target EC <input name="target_ec" type="number" step="0.1" /></label>
+          <label>Target pH <input name="target_ph" type="number" step="0.1" /></label>
+        </div>
+        <button type="submit">Save Profile</button>
+        <span id="profileStatus">-</span>
+      </form>
+    </section>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>
