@@ -9,6 +9,10 @@ public class GreenhouseManager : MonoBehaviour
     [HideInInspector] public SoilState soilState = new SoilState();
     [HideInInspector] public PlantState plantState = new PlantState();
     [HideInInspector] public OutdoorState outdoorState = new OutdoorState();
+    public PlantGrowthModel plantGrowthModel;
+    public TemperatureSensor tempSensor;
+    public HumiditySensor humiditySensor;
+    public SoilMoistureSensor soilMoistureSensor;
 
     // === REFERANSLAR (Inspector'dan bağlanacak) ===
     [Header("Simülasyon Bileşenleri")]
@@ -53,6 +57,12 @@ public class GreenhouseManager : MonoBehaviour
         // 2. Toprağı güncelle (Kişi 1)
         if (soilModel != null)
             soilModel.UpdateSoil(soilState, airState, this, dt);
+        //ekinsu
+        if (plantGrowthModel != null) 
+            plantGrowthModel.UpdatePlant(plantState, airState, soilState, dt);
+        if (tempSensor != null) tempSensor.UpdateSensor(airState, dt);
+        if (humiditySensor != null) humiditySensor.UpdateSensor(airState, dt);
+        if (soilMoistureSensor != null) soilMoistureSensor.UpdateSensor(soilState, dt);
 
         // 3. Kontrol kararı ver (Kişi 2)
         if (controller != null)
