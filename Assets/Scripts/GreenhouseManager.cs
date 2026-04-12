@@ -22,6 +22,8 @@ public class GreenhouseManager : MonoBehaviour
 
     [Header("Kontrol Sistemleri")]
     public RuleBasedController controller;
+    public EnergyTracker energyTracker;
+    public ScenarioManager scenarioManager;
 
     // Kişi 3 ekleyecek
     // public DashboardManager dashboard;
@@ -67,6 +69,10 @@ public class GreenhouseManager : MonoBehaviour
         // 3. Kontrol kararı ver (Kişi 2)
         if (controller != null)
             controller.Evaluate(airState, soilState, plantState, this);
+
+        // 3.5 Enerji takibi (Kişi 2)
+        if (energyTracker != null)
+            energyTracker.UpdateTracking(dt);
 
         // 4. UI güncelle — Kişi 3 buraya ekleyecek
         // if (dashboard != null)
