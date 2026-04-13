@@ -1028,6 +1028,12 @@ MonoBehaviour:
   - key: 19
     enabled: 1
     titleOverride: 
+  - key: 19
+    enabled: 1
+    titleOverride: 
+  - key: 19
+    enabled: 1
+    titleOverride: 
 --- !u!1 &592901525
 GameObject:
   m_ObjectHideFlags: 0
@@ -1174,12 +1180,16 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 676438636}
+  - component: {fileID: 676438640}
   - component: {fileID: 676438635}
   - component: {fileID: 676438637}
   - component: {fileID: 676438638}
   - component: {fileID: 676438639}
-  - component: {fileID: 676438640}
   - component: {fileID: 676438641}
+  - component: {fileID: 676438645}
+  - component: {fileID: 676438644}
+  - component: {fileID: 676438643}
+  - component: {fileID: 676438642}
   m_Layer: 0
   m_Name: SimulationManager
   m_TagString: Untagged
@@ -1199,7 +1209,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: deb6a825407ad9b42a6717e6f7047b48, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SimulationClock
-  timeScale: 3600
+  timeScale: 6
   isPaused: 0
   simTime: 0
   deltaTime: 0
@@ -1322,10 +1332,10 @@ MonoBehaviour:
     outsideHumidity: 55
     windSpeed: 0
     isCloudy: 0
-  plantGrowthModel: {fileID: 0}
-  tempSensor: {fileID: 0}
-  humiditySensor: {fileID: 0}
-  soilMoistureSensor: {fileID: 0}
+  plantGrowthModel: {fileID: 676438642}
+  tempSensor: {fileID: 676438643}
+  humiditySensor: {fileID: 676438644}
+  soilMoistureSensor: {fileID: 676438645}
   simClock: {fileID: 676438635}
   envPhysics: {fileID: 676438638}
   soilModel: {fileID: 676438639}
@@ -1349,10 +1359,120 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49fed942089551b4a8dcf99bd3d54205, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RuleBasedController
-  crop: {fileID: 0}
+  crop: {fileID: 11400000, guid: 911d73284decb486b9a71d41bf11505f, type: 2}
   tempHysteresis: 2
   humidityHysteresis: 5
   soilHysteresis: 5
+--- !u!114 &676438642
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 676438634}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a9273b4553bcba4da341d0253e59bb0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlantGrowthModel
+  baseGrowthTemp: 10
+  requiredGDD: 1500
+  optimalTempMin: 18
+  optimalTempMax: 28
+  optimalHumidityMin: 50
+  optimalHumidityMax: 80
+  optimalSoilMin: 40
+  optimalSoilMax: 70
+  minLightLux: 5000
+  growthStage: 0
+  health: 0
+  accumulatedGDD: 0
+  growthPhaseName: 
+--- !u!114 &676438643
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 676438634}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b378c44ba46985447a6560b210cca8ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TemperatureSensor
+  noiseStdDev: 0.3
+  sampleInterval: 2
+  latency: 0.5
+  trueValue: 0
+  measuredValue: 0
+  timeSinceLastSample: 0
+--- !u!114 &676438644
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 676438634}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc94ab6540df9434fb2f83b1e7f5bce2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HumiditySensor
+  noiseStdDev: 1.5
+  sampleInterval: 2
+  latency: 0.5
+  trueValue: 0
+  measuredValue: 0
+  timeSinceLastSample: 0
+--- !u!114 &676438645
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 676438634}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5bb598404c1fbf478d5c431d10a775a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SoilMoistureSensor
+  noiseStdDev: 2
+  sampleInterval: 5
+  latency: 1
+  trueValue: 0
+  measuredValue: 0
+  timeSinceLastSample: 0
+--- !u!1 &768128229
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 768128230}
+  m_Layer: 0
+  m_Name: CropProfile
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &768128230
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 768128229}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -1037.2621, y: -499.77716, z: 0}
+  m_LocalScale: {x: 2.3941422, y: 2.3941422, z: 2.3941422}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1195754527}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &808820463
 GameObject:
   m_ObjectHideFlags: 0
@@ -1677,6 +1797,7 @@ RectTransform:
   - {fileID: 2062924123893651022}
   - {fileID: 808820464}
   - {fileID: 592718405}
+  - {fileID: 768128230}
   m_Father: {fileID: 676438636}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}

@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cca148ff6a422e541b0c847bfc1789dd, type: 3}
+  m_Name: TomatoProfile
+  m_EditorClassIdentifier: Assembly-CSharp::CropProfile
+  cropName: 
+  tempMin: 18
+  tempMax: 28
+  tempOptimal: 24
+  humidityMin: 50
+  humidityMax: 80
+  soilMoistureMin: 40
+  soilMoistureMax: 70
+  targetEC: 2.5
+  targetPH: 6.5
+  minLightLux: 20000
+  dailyLightHours: 14
+  baseGrowthTemp: 10
+  requiredGDD: 1500
