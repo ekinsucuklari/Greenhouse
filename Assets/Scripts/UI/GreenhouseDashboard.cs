@@ -2,9 +2,9 @@ using UnityEngine;
 using TMPro;
 
 /// <summary>
-/// Sera simülasyonundaki değerleri (SimulationClock, WeatherSystem, EnvironmentPhysics, SoilModel)
-/// tek yerden okuyup Canvas'taki TMP_Text alanlarına yazar. Canvas'a veya altındaki bir GameObject'e ekle,
-/// Inspector'dan ilgili Text (TMP) referanslarını sürükleyip bırak.
+/// Sera simülasyon verilerini GreenhouseManager + SimulationClock uzerinden
+/// tek kaynaktan okuyup Canvas'taki TMP_Text alanlarina yazar.
+/// Bu yaklasim, UI tarafinda singleton karisikliklarini ve null hatalarini azaltir.
 /// </summary>
 public class GreenhouseDashboard : MonoBehaviour
 {
@@ -30,47 +30,76 @@ public class GreenhouseDashboard : MonoBehaviour
     [Header("Güneş (WeatherSystem) — isteğe bağlı")]
     public TMP_Text solarRadiationText;
 
+    private GreenhouseManager _gm;
+    private SimulationClock _clock;
+    private float _nextWarningTime;
+
+    void Awake()
+    {
+        TryResolveReferences();
+    }
+
     void Update()
     {
-        if (SimulationClock.Instance != null)
+        TryResolveReferences();
+        if (_gm == null)
+            return;
+
+        // Zaman
+        if (_clock != null)
         {
             if (hourOfDayText != null)
             {
-                float hour = SimulationClock.Instance.HourOfDay;
+                float hour = _clock.HourOfDay;
                 int h = Mathf.FloorToInt(hour);
                 int m = Mathf.FloorToInt((hour - h) * 60f);
                 hourOfDayText.text = $"{h:D2}:{m:D2}";
             }
+
             if (dayCountText != null)
-                dayCountText.text = SimulationClock.Instance.DayCount.ToString();
+                dayCountText.text = _clock.DayCount.ToString();
         }
 
-        if (WeatherSystem.Instance != null)
-        {
-            if (outsideTemperatureText != null)
-                outsideTemperatureText.text = $"{WeatherSystem.Instance.OutsideTemp:F1} °C";
-            if (outsideHumidityText != null)
-                outsideHumidityText.text = $"{WeatherSystem.Instance.OutsideHumidity:F0} %";
-            if (solarRadiationText != null)
-                solarRadiationText.text = $"{WeatherSystem.Instance.SolarRadiation:F0} W/m²";
-        }
+        // Dis ortam (tek kaynak: GreenhouseManager.outdoorState)
+        if (outsideTemperatureText != null)
+            outsideTemperatureText.text = $"{_gm.outdoorState.outsideTemp:F1} °C";
+        if (outsideHumidityText != null)
+            outsideHumidityText.text = $"{_gm.outdoorState.outsideHumidity:F0} %";
+        if (solarRadiationText != null)
+            solarRadiationText.text = $"{_gm.outdoorState.solarRadiation:F0} W/m²";
 
-        if (EnvironmentPhysics.Instance != null)
-        {
-            if (insideTemperatureText != null)
-                insideTemperatureText.text = $"{GreenhouseManager.Instance.airState.temperature:F1} °C";
-            if (insideHumidityText != null)
-                insideHumidityText.text = $"{GreenhouseManager.Instance.airState.humidity:F0} %";
-        }
+        // Sera ici (tek kaynak: GreenhouseManager.airState)
+        if (insideTemperatureText != null)
+            insideTemperatureText.text = $"{_gm.airState.temperature:F1} °C";
+        if (insideHumidityText != null)
+            insideHumidityText.text = $"{_gm.airState.humidity:F0} %";
 
-        if (GreenhouseManager.Instance != null)
+        // Toprak
+        if (soilMoistureText != null)
+            soilMoistureText.text = $"{_gm.soilState.moisture:F1} %";
+        if (ecText != null)
+            ecText.text = $"{_gm.soilState.ec:F2} mS/cm";
+        if (phText != null)
+            phText.text = _gm.soilState.ph.ToString("F1");
+    }
+
+    private void TryResolveReferences()
+    {
+        if (_gm == null)
+            _gm = GreenhouseManager.Instance;
+        if (_clock == null)
+            _clock = SimulationClock.Instance;
+
+        // Singleton set edilmediyse sahneden bulup baglanmayi dene.
+        if (_gm == null)
+            _gm = FindFirstObjectByType<GreenhouseManager>();
+        if (_clock == null)
+            _clock = FindFirstObjectByType<SimulationClock>();
+
+        if ((_gm == null || _clock == null) && Time.unscaledTime >= _nextWarningTime)
         {
-            if (soilMoistureText != null)
-                soilMoistureText.text = $"{GreenhouseManager.Instance.soilState.moisture:F1} %";
-            if (ecText != null)
-                ecText.text = $"{GreenhouseManager.Instance.soilState.ec:F2} mS/cm";
-            if (phText != null)
-                phText.text = GreenhouseManager.Instance.soilState.ph.ToString("F1");
+            _nextWarningTime = Time.unscaledTime + 2f;
+            Debug.LogWarning("[GreenhouseDashboard] GreenhouseManager/SimulationClock referansi bulunamadi. Scene setup'i kontrol et.");
         }
     }
 }
