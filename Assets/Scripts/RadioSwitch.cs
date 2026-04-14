@@ -60,7 +60,7 @@ public class RadioSwitch: MonoBehaviour
         background.color = bgColor;
         if (label != null)
         {
-            label.text = isOn ? "Açýk" : "Kapalý";
+            label.text = isOn ? "ON" : "OFF";
             label.color = bgColor;
         }
         switchHandle.anchoredPosition = isOn ? new Vector2(handleOnPos, 0) : new Vector2(handleOffPos, 0);
