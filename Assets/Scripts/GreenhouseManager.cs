@@ -46,6 +46,7 @@ public class GreenhouseManager : MonoBehaviour
     void FixedUpdate()
     {
         if (simClock == null) return;
+        if (simClock.isPaused) return;
 
         float dt = Time.fixedDeltaTime * simClock.timeScale;
 
