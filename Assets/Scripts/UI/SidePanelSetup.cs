@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System;
+using System.Collections.Generic;
 
 /// <summary>
 /// Runtime'da sahneye Time Control, Energy Dashboard, Alert System ve Scenario
@@ -39,6 +41,23 @@ public class SidePanelSetup : MonoBehaviour
     private bool _built;
     private GreenhouseManager _gm;
     private ActuatorBase[] _actuatorCache;
+    private GreenhouseCladding _cladding;
+    private CameraPresetController _cameraPresets;
+    private readonly List<ScenarioToggleBinding> _scenarioToggles = new();
+    private readonly List<CameraButtonBinding> _cameraButtons = new();
+
+    private class ScenarioToggleBinding
+    {
+        public Button toggleButton;
+        public TMP_Text statusLabel;
+        public Func<bool> isActive;
+    }
+
+    private class CameraButtonBinding
+    {
+        public Button button;
+        public int index;
+    }
 
     void Update()
     {
@@ -81,6 +100,38 @@ public class SidePanelSetup : MonoBehaviour
             // Health'i 0'a yapistirmaktan koru — minimum 0.05'te tut
             if (_gm.plantState.health < 0.05f)
                 _gm.plantState.health = 0.05f;
+        }
+
+        SyncScenarioToggles();
+        SyncCameraButtons();
+    }
+
+    void SyncCameraButtons()
+    {
+        if (_cameraPresets == null) return;
+        int selected = _cameraPresets.SelectedIndex;
+        foreach (var cb in _cameraButtons)
+        {
+            if (cb.button == null) continue;
+            var img = cb.button.GetComponent<Image>();
+            if (img != null)
+                img.color = (cb.index == selected) ? ColRunning : ColBtnInfo;
+        }
+    }
+
+    void SyncScenarioToggles()
+    {
+        foreach (var toggle in _scenarioToggles)
+        {
+            if (toggle.toggleButton == null || toggle.statusLabel == null || toggle.isActive == null)
+                continue;
+
+            bool on = toggle.isActive();
+            toggle.statusLabel.text = on ? "ON" : "OFF";
+
+            var img = toggle.toggleButton.GetComponent<Image>();
+            if (img != null)
+                img.color = on ? ColRunning : ColBtnDanger;
         }
     }
 
@@ -159,6 +210,14 @@ public class SidePanelSetup : MonoBehaviour
 
         _gm = gm;
         _actuatorCache = actuators;
+        _cladding = FindFirstObjectByType<GreenhouseCladding>();
+
+        _cameraPresets = FindFirstObjectByType<CameraPresetController>();
+        if (_cameraPresets == null)
+        {
+            var camGO = new GameObject("CameraPresetController");
+            _cameraPresets = camGO.AddComponent<CameraPresetController>();
+        }
     }
 
     void BuildPanel()
@@ -229,21 +288,40 @@ public class SidePanelSetup : MonoBehaviour
         var ed = edGO.AddComponent<EnergyDashboardUI>();
         ed.totalEnergyLabel = totalLabel; ed.currentPowerLabel = powerLabel; ed.costLabel = costLabel;
 
+        // ---------- CAMERA ----------
+        if (_cameraPresets != null && _cameraPresets.PresetCount > 0)
+        {
+            AddSubHeader(panel, "Camera");
+            var camRow = AddHorizontalRow(panel, 6);
+            SetHeight(camRow.gameObject, ButtonH);
+
+            int count = Mathf.Min(3, _cameraPresets.PresetCount);
+            for (int i = 0; i < count; i++)
+            {
+                int idx = i;
+                var camBtn = AddButton(camRow, "Cam " + (i + 1), ColBtnInfo, ColBtnInfoH);
+                camBtn.onClick.AddListener(() => { if (_cameraPresets != null) _cameraPresets.Apply(idx); });
+                _cameraButtons.Add(new CameraButtonBinding { button = camBtn, index = idx });
+            }
+        }
+
+        // ---------- CLADDING ----------
+        if (_cladding != null)
+        {
+            AddSubHeader(panel, "Cladding");
+            AddScenarioToggle(panel, "Glass (Roof + Walls)",
+                () => _cladding != null && _cladding.IsVisible,
+                () => { if (_cladding != null) _cladding.ToggleVisible(); });
+        }
+
         // ---------- SCENARIOS ----------
         AddSubHeader(panel, "Scenarios");
-        var btnHeat    = AddButton(panel, "Heat Wave",    ColBtnDanger, ColBtnDangerH);
-        SetHeight(btnHeat.gameObject, ButtonH);
-        var btnFanFail = AddButton(panel, "Fan Failure",  ColBtnDanger, ColBtnDangerH);
-        SetHeight(btnFanFail.gameObject, ButtonH);
-        var btnOutage  = AddButton(panel, "Power Outage", ColBtnDanger, ColBtnDangerH);
-        SetHeight(btnOutage.gameObject, ButtonH);
-
         if (_gm != null && _gm.scenarioManager != null)
         {
             var sm = _gm.scenarioManager;
-            btnHeat.onClick.AddListener(() => sm.TriggerHeatWave());
-            btnFanFail.onClick.AddListener(() => sm.TriggerFanFailure());
-            btnOutage.onClick.AddListener(() => sm.TriggerPowerOutage());
+            AddScenarioToggle(panel, "Heat Wave", () => sm.heatWaveActive, sm.ToggleHeatWave);
+            AddScenarioToggle(panel, "Fan Failure", () => sm.fanFailureActive, sm.ToggleFanFailure);
+            AddScenarioToggle(panel, "Power Outage", () => sm.powerOutageActive, sm.TogglePowerOutage);
         }
 
         // ---------- ALERTS ----------
@@ -258,6 +336,8 @@ public class SidePanelSetup : MonoBehaviour
         var alertSys = asGO.AddComponent<AlertSystem>();
         alertSys.alertText = alertText;
         alertSys.alertPanel = null;
+
+        SyncScenarioToggles();
     }
 
     // ===========================================================
@@ -321,6 +401,43 @@ public class SidePanelSetup : MonoBehaviour
         var valLE = valT.gameObject.AddComponent<LayoutElement>();
         valLE.flexibleWidth = 1;
         return valT;
+    }
+
+    void AddScenarioToggle(RectTransform parent, string title, Func<bool> isActive, Action toggle)
+    {
+        var row = CreateRect("Scenario_" + title, parent);
+        var img = row.gameObject.AddComponent<Image>();
+        img.color = ColMetricCard;
+        SetHeight(row.gameObject, MetricRowH + 4);
+
+        var hlg = row.gameObject.AddComponent<HorizontalLayoutGroup>();
+        hlg.padding = new RectOffset(10, 10, 6, 6);
+        hlg.spacing = 8;
+        hlg.childForceExpandWidth = true;
+        hlg.childForceExpandHeight = true;
+        hlg.childControlWidth = true;
+        hlg.childControlHeight = true;
+        hlg.childAlignment = TextAnchor.MiddleLeft;
+
+        var nameT = AddText(row, title, CardTitleSize, FontStyles.Normal, ColTitleDark, TextAlignmentOptions.MidlineLeft);
+        var nameLE = nameT.gameObject.AddComponent<LayoutElement>();
+        nameLE.flexibleWidth = 2;
+
+        var btn = AddButton(row, "OFF", ColBtnDanger, ColBtnDangerH);
+        var btnLE = btn.gameObject.AddComponent<LayoutElement>();
+        btnLE.minWidth = 72;
+        btnLE.preferredWidth = 72;
+        btnLE.flexibleWidth = 0;
+
+        var statusLabel = btn.GetComponentInChildren<TMP_Text>();
+        btn.onClick.AddListener(() => toggle());
+
+        _scenarioToggles.Add(new ScenarioToggleBinding
+        {
+            toggleButton = btn,
+            statusLabel = statusLabel,
+            isActive = isActive
+        });
     }
 
     static RectTransform AddHorizontalRow(RectTransform parent, float spacing)

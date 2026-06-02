@@ -5,7 +5,7 @@ public class SoilModel : MonoBehaviour
     public static SoilModel Instance { get; private set; }
 
     [Header("Toprak Fiziksel Özellikleri")]
-    public float irrigationRate = 2f;       // %/saniye
+    public float irrigationRate = 0.35f;    // %/saniye — gercekci sulama hizi
     public float drainageRate = 0.05f;      // doðal süzülme
     public float evaporationCoeff = 0.01f;  // sýcaklýða baðlý
 

@@ -69,7 +69,7 @@ public class GreenhouseManager : MonoBehaviour
 
         // 3. Kontrol kararı ver (Kişi 2)
         if (controller != null)
-            controller.Evaluate(airState, soilState, plantState, this);
+            controller.Evaluate(airState, soilState, plantState, this, dt);
 
         // 3.5 Enerji takibi (Kişi 2)
         if (energyTracker != null)
